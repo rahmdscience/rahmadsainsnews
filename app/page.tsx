@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import EyeballModel from "./components/EyeballModel";
 
 const articles = [
   {
@@ -392,6 +393,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <EyeballModel />
 
       {/* MAIN CONTAINER */}
       <div className="site-container">

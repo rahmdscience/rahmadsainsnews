@@ -1,6 +1,6 @@
 # PNN Journal
 
-PNN Journal is a one-page editorial experience about the people, ideas, and industries shaping what comes next. Through six visual stories, it explores industrial innovation, design, energy, engineering, and the future beyond the digital world.
+RSAH Journal is a one-page editorial experience about the people, ideas, and industries shaping what comes next. Through six visual stories, it explores industrial innovation, design, energy, engineering, and the future beyond the digital world.
 
 The page uses a scroll-driven presentation: article sections reveal as readers move through the story, while the background color transitions to reflect each chapter. Editorial photography, pull quotes, and a minimal navigation frame the content.
 

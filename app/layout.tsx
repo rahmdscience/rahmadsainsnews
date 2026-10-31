@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FORM. — The Art of Building Tomorrow",
+  title: "rsah. — some thoughts by Rahmad Sains",
   description:
     "An independent editorial journal exploring innovation, culture, technology and the future.",
   keywords: [

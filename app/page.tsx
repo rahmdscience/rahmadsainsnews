@@ -422,10 +422,10 @@ export default function Home() {
       {/* MAIN CONTAINER */}
       <div className="site-container">
         <header className="topbar">
-          <a href="#" className="logo">PNN</a>
+          <a href="#" className="logo">RSAH</a>
 
           <a href="#" className="topbar-pill">
-            THE NEW INDUSTRIALS
+            EVERYTHINGRSAH
           </a>
 
           <span className="year-box">2026</span>

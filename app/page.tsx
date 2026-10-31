@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 
 const articles = [
   {
+    chapter: "INTRODUCTION",
     title: "The New Industrials",
     category: "INDUSTRY / INNOVATION",
     color: "#FF8126",
@@ -15,9 +16,10 @@ const articles = [
       "https://images.unsplash.com/photo-1513828583688-c52646e04db8?w=1800&q=85",
   },
   {
+    chapter: "DESIGN",
     title: "A Different Kind of Future",
     category: "TECHNOLOGY / DESIGN",
-    color: "#FF8126",
+    color: "#F5A04C",
     content:
       "They're not waiting to get established to worry about Design. They are using Design to help them get established. A new way of thinking is changing how industries are built.",
     quote: "The future belongs to those who build it.",
@@ -25,6 +27,7 @@ const articles = [
       "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1800&q=85",
   },
   {
+    chapter: "TECHNOLOGY",
     title: "Beyond the Digital World",
     category: "ENERGY / TECHNOLOGY",
     color: "#48B8F5",
@@ -35,9 +38,10 @@ const articles = [
       "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1800&q=85",
   },
   {
+    chapter: "ENGINEERING",
     title: "Rebuilding Everything",
     category: "ENGINEERING / FUTURE",
-    color: "#48B8F5",
+    color: "#4588D2",
     content:
       "Manufacturing, infrastructure and logistics are entering a new era. Engineering is becoming the foundation of a different kind of progress.",
     quote: "Progress is not an idea. It is something we construct.",
@@ -45,6 +49,7 @@ const articles = [
       "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?w=1800&q=85",
   },
   {
+    chapter: "ENERGY",
     title: "The Energy Transition",
     category: "ENERGY / SUSTAINABILITY",
     color: "#39C879",
@@ -55,9 +60,10 @@ const articles = [
       "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=1800&q=85",
   },
   {
+    chapter: "FUTURE",
     title: "A World Reimagined",
     category: "SOCIETY / INNOVATION",
-    color: "#39C879",
+    color: "#59A67D",
     content:
       "The industries being built today will define how future generations live, work and move. This is more than technological progress. It is a transformation of society.",
     quote: "We are not just imagining the future. We are building it.",
@@ -94,79 +100,107 @@ const clamp = (value: number) =>
 
 export default function Home() {
   const backgroundRef = useRef<HTMLDivElement>(null);
+  const geometryRef = useRef<HTMLDivElement>(null);
+  const chapterNavigationRef = useRef<HTMLElement>(null);
+  const readingTrackRef = useRef<HTMLDivElement>(null);
+  const readingProgressRef = useRef<HTMLDivElement>(null);
+  const readingPercentageRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const updateBackground = () => {
-      const viewportCenter =
-        window.scrollY + window.innerHeight * 0.5;
+      const maxScroll =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const readingProgress =
+        maxScroll > 0 ? clamp(window.scrollY / maxScroll) : 0;
+      const readingPercentage = Math.round(readingProgress * 100);
+
+      geometryRef.current?.style.setProperty(
+        "--geometry-scroll",
+        `${(readingProgress - 0.5) * 90}px`
+      );
+
+      readingProgressRef.current?.style.setProperty(
+        "width",
+        `${readingPercentage}%`
+      );
+      readingTrackRef.current?.setAttribute(
+        "aria-valuenow",
+        String(readingPercentage)
+      );
+      readingPercentageRef.current?.replaceChildren(
+        `${readingPercentage}%`
+      );
 
       const sections = Array.from(
         document.querySelectorAll<HTMLElement>(".article-section")
       );
 
-      if (!sections.length || !backgroundRef.current) return;
+      if (!sections.length) return;
+
+      const viewportCenterY = window.innerHeight * 0.5;
+      const chapterThreshold = window.innerHeight * 0.8;
+      const nextChapterIndex = sections.findIndex(
+        (section) => section.getBoundingClientRect().top > chapterThreshold
+      );
+      const chapterIndex =
+        nextChapterIndex === -1
+          ? sections.length - 1
+          : Math.max(0, nextChapterIndex - 1);
+      const colorSectionIndex = sections.findIndex((section) => {
+        const bounds = section.getBoundingClientRect();
+        return viewportCenterY >= bounds.top && viewportCenterY < bounds.bottom;
+      });
 
       let activeColor = articles[0].color;
       let nextColor = activeColor;
       let progress = 0;
       let transitioning = false;
 
-      for (let i = 0; i < sections.length - 1; i += 2) {
-        const secondArticle = sections[i + 1];
-        const nextArticle = sections[i + 2];
+      const transitionDistance = window.innerHeight * 0.2;
 
-        if (!secondArticle || !nextArticle) continue;
+      for (let index = 0; index < sections.length - 1; index += 1) {
+        const boundary = sections[index + 1].getBoundingClientRect().top;
+        const transitionStart = boundary - transitionDistance;
+        const transitionEnd = boundary + transitionDistance;
 
-        const start =
-          secondArticle.offsetTop +
-          secondArticle.offsetHeight * 0.85;
-
-        const end =
-          nextArticle.offsetTop +
-          nextArticle.offsetHeight * 0.15;
-
-        if (viewportCenter >= start && viewportCenter <= end) {
-          activeColor = articles[i].color;
-          nextColor = articles[i + 2].color;
-
+        if (
+          viewportCenterY >= transitionStart &&
+          viewportCenterY <= transitionEnd
+        ) {
+          activeColor = articles[index].color;
+          nextColor = articles[index + 1].color;
           progress = clamp(
-            (viewportCenter - start) / (end - start)
+            (viewportCenterY - transitionStart) /
+              (transitionEnd - transitionStart)
           );
-
           transitioning = true;
           break;
-        }
-
-        if (viewportCenter > end) {
-          activeColor = articles[i + 2].color;
-          nextColor = activeColor;
         }
       }
 
       if (!transitioning) {
-        const activeSection = sections.find((section) => {
-          return (
-            viewportCenter >= section.offsetTop &&
-            viewportCenter <
-              section.offsetTop + section.offsetHeight
-          );
-        });
-
-        if (activeSection) {
-          const index = Number(activeSection.dataset.index);
-          const pairIndex = Math.floor(index / 2) * 2;
-
-          activeColor =
-            articles[pairIndex]?.color ?? articles[0].color;
-          nextColor = activeColor;
-        } else if (viewportCenter >= sections[sections.length - 1].offsetTop) {
-          const lastPair =
-            Math.floor((articles.length - 1) / 2) * 2;
-
-          activeColor = articles[lastPair].color;
-          nextColor = activeColor;
-        }
+        const settledIndex =
+          colorSectionIndex === -1
+            ? viewportCenterY < sections[0].getBoundingClientRect().top
+              ? 0
+              : sections.length - 1
+            : colorSectionIndex;
+        activeColor = articles[settledIndex]?.color ?? articles[0].color;
+        nextColor = activeColor;
       }
+
+      sections.forEach((section, index) => {
+        section.classList.toggle("is-current", index === chapterIndex);
+
+        const title = section.querySelector<HTMLElement>(".article-title");
+        if (!title?.classList.contains("visible")) return;
+
+        const titleTop = title.getBoundingClientRect().top;
+        title.classList.toggle(
+          "is-leaving",
+          titleTop < window.innerHeight * 0.12
+        );
+      });
 
       const interpolated = interpolateColor(
         activeColor,
@@ -174,9 +208,35 @@ export default function Home() {
         progress
       );
 
+      readingProgressRef.current?.style.setProperty(
+        "background-color",
+        interpolated
+      );
+      geometryRef.current?.style.setProperty(
+        "--geometry-color",
+        interpolated
+      );
+      chapterNavigationRef.current?.style.setProperty(
+        "--chapter-active-color",
+        interpolated
+      );
+      chapterNavigationRef.current
+        ?.querySelectorAll<HTMLAnchorElement>(".chapter-link")
+        .forEach((link, index) => {
+          if (index === chapterIndex) {
+            link.classList.add("is-active");
+            link.setAttribute("aria-current", "location");
+          } else {
+            link.classList.remove("is-active");
+            link.removeAttribute("aria-current");
+          }
+        });
+
       const gradientOpacity = transitioning
         ? Math.sin(progress * Math.PI) * 0.55
         : 0;
+
+      if (!backgroundRef.current) return;
 
       backgroundRef.current.style.setProperty(
         "--current-bg",
@@ -218,9 +278,46 @@ export default function Home() {
 
     window.addEventListener("resize", updateBackground);
 
+    const pointerQuery = window.matchMedia(
+      "(hover: hover) and (pointer: fine)"
+    );
+    const reducedMotionQuery = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    );
+    const onPointerMove = (event: PointerEvent) => {
+      if (
+        !pointerQuery.matches ||
+        reducedMotionQuery.matches ||
+        !geometryRef.current
+      ) {
+        return;
+      }
+
+      const horizontal = event.clientX / window.innerWidth - 0.5;
+      const vertical = event.clientY / window.innerHeight - 0.5;
+
+      geometryRef.current.style.setProperty(
+        "--geometry-rotate-x",
+        `${vertical * -14}deg`
+      );
+      geometryRef.current.style.setProperty(
+        "--geometry-rotate-y",
+        `${horizontal * 18}deg`
+      );
+    };
+    const resetPointer = () => {
+      geometryRef.current?.style.setProperty("--geometry-rotate-x", "0deg");
+      geometryRef.current?.style.setProperty("--geometry-rotate-y", "0deg");
+    };
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerleave", resetPointer);
+
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", updateBackground);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerleave", resetPointer);
 
       if (frame) cancelAnimationFrame(frame);
     };
@@ -236,7 +333,7 @@ export default function Home() {
           }
         });
       },
-      { threshold: 0.12 }
+      { rootMargin: "0px 0px -30% 0px", threshold: 0.12 }
     );
 
     document.querySelectorAll(".reveal").forEach((element) => {
@@ -248,9 +345,65 @@ export default function Home() {
 
   return (
     <main className="editorial-page">
+      <div
+        className="reading-progress-track"
+        ref={readingTrackRef}
+        role="progressbar"
+        aria-label="Article reading progress"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={0}
+      >
+        <div className="reading-progress-fill" ref={readingProgressRef} />
+        <span
+          className="reading-progress-percentage"
+          aria-hidden="true"
+          ref={readingPercentageRef}
+        >
+          0%
+        </span>
+      </div>
+
+      <nav
+        className="chapter-navigation"
+        ref={chapterNavigationRef}
+        aria-label="Article chapters"
+      >
+        {articles.map((article, index) => (
+          <a
+            className="chapter-link"
+            href={`#article-${index + 1}`}
+            key={article.chapter}
+          >
+            <span className="chapter-number">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <span className="chapter-rule" aria-hidden="true" />
+            <span className="chapter-label">{article.chapter}</span>
+          </a>
+        ))}
+      </nav>
+
       {/* DYNAMIC BACKGROUND */}
       <div className="dynamic-background" ref={backgroundRef}>
         <div className="background-gradient" />
+      </div>
+
+      <div className="geometry-stage" ref={geometryRef} aria-hidden="true">
+        <div className="geometry-drift">
+          <div className="geometry-cluster">
+            <div className="geometry-orbit geometry-orbit--outer" />
+            <div className="geometry-orbit geometry-orbit--inner" />
+            <div className="geometry-cube">
+              <span className="geometry-face geometry-face--front" />
+              <span className="geometry-face geometry-face--back" />
+              <span className="geometry-face geometry-face--right" />
+              <span className="geometry-face geometry-face--left" />
+              <span className="geometry-face geometry-face--top" />
+              <span className="geometry-face geometry-face--bottom" />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* MAIN CONTAINER */}
@@ -300,6 +453,19 @@ export default function Home() {
                 {article.quote}
               </p>
 
+              <figure className="article-image reveal">
+                <img
+                  src={article.image}
+                  alt={article.title}
+                  loading={index === 0 ? "eager" : "lazy"}
+                />
+
+                <figcaption>
+                  <span>FIG {String(index + 1).padStart(2, "0")}</span>
+                  <span>{article.category}</span>
+                </figcaption>
+              </figure>
+
               <div className="article-scroll">
                 <span>SCROLL TO EXPLORE ↓</span>
               </div>
@@ -315,19 +481,6 @@ export default function Home() {
                 <p className="body-lead reveal">
                   {article.content}
                 </p>
-
-                <figure className="article-image reveal">
-                  <img
-                    src={article.image}
-                    alt={article.title}
-                    loading={index === 0 ? "eager" : "lazy"}
-                  />
-
-                  <figcaption>
-                    <span>FIG {String(index + 1).padStart(2, "0")}</span>
-                    <span>{article.category}</span>
-                  </figcaption>
-                </figure>
 
                 <blockquote className="article-quote reveal">
                   “{article.quote}”

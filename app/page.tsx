@@ -10,8 +10,7 @@ const articles = [
     color: "#FF8126",
     content:
       "For 50-odd years, American innovation has felt dominated by the creative output of Silicon Valley. But times are changing. A new generation of industrial pioneers is beginning to reshape the physical world.",
-    image:
-      "https://images.unsplash.com/photo-1513828583688-c52646e04db8?w=1800&q=85",
+    image: "/images/Rahmad%20Sains_Arc.png",
   },
   {
     chapter: "DESIGN",
@@ -432,7 +431,9 @@ export default function Home() {
                 {article.title}
               </h1>
 
-              <figure className="article-image reveal">
+              <figure
+                className={`article-image${index === 0 ? " article-image--introduction" : ""} reveal`}
+              >
                 <img
                   src={article.image}
                   alt={article.title}

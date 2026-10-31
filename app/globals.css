@@ -376,12 +376,12 @@ a {
 }
 
 .article-title {
-  max-width: 950px;
+  max-width: 1050px;
   font-family: var(--display);
   font-weight: 400;
-  font-size: 36px;
+  font-size: clamp(54px, 7vw, 84px);
   line-height: 1.12;
-  letter-spacing: .005em;
+  letter-spacing: -.025em;
   margin: 0 auto;
 }
 
@@ -429,9 +429,21 @@ a {
 }
 
 .article-image img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.article-image.article-image--introduction {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+}
+
+.article-image--introduction img {
+  height: auto;
+  object-fit: contain;
 }
 
 /* FOOTER */
@@ -524,7 +536,7 @@ a {
   }
 
   .article-title {
-    font-size: 32px;
+    font-size: clamp(42px, 12vw, 52px);
   }
 
   .body-content {

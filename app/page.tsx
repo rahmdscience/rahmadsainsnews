@@ -7,66 +7,54 @@ const articles = [
   {
     chapter: "INTRODUCTION",
     title: "The New Industrials",
-    category: "INDUSTRY / INNOVATION",
     color: "#FF8126",
     content:
       "For 50-odd years, American innovation has felt dominated by the creative output of Silicon Valley. But times are changing. A new generation of industrial pioneers is beginning to reshape the physical world.",
-    quote: "Innovation was them. Now innovation is everywhere.",
     image:
       "https://images.unsplash.com/photo-1513828583688-c52646e04db8?w=1800&q=85",
   },
   {
     chapter: "DESIGN",
     title: "A Different Kind of Future",
-    category: "TECHNOLOGY / DESIGN",
     color: "#F5A04C",
     content:
       "They're not waiting to get established to worry about Design. They are using Design to help them get established. A new way of thinking is changing how industries are built.",
-    quote: "The future belongs to those who build it.",
     image:
       "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1800&q=85",
   },
   {
     chapter: "TECHNOLOGY",
     title: "Beyond the Digital World",
-    category: "ENERGY / TECHNOLOGY",
     color: "#48B8F5",
     content:
       "The next industrial revolution is not confined to computer screens. It is happening in laboratories, power plants, factories and infrastructure across the world.",
-    quote: "The next big thing is going to be BIG.",
     image:
       "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1800&q=85",
   },
   {
     chapter: "ENGINEERING",
     title: "Rebuilding Everything",
-    category: "ENGINEERING / FUTURE",
     color: "#4588D2",
     content:
       "Manufacturing, infrastructure and logistics are entering a new era. Engineering is becoming the foundation of a different kind of progress.",
-    quote: "Progress is not an idea. It is something we construct.",
     image:
       "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?w=1800&q=85",
   },
   {
     chapter: "ENERGY",
     title: "The Energy Transition",
-    category: "ENERGY / SUSTAINABILITY",
     color: "#39C879",
     content:
       "Energy is at the heart of every modern society. From renewable resources to advanced nuclear technology, the way we produce and distribute energy is changing.",
-    quote: "Powering tomorrow starts today.",
     image:
       "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=1800&q=85",
   },
   {
     chapter: "FUTURE",
     title: "A World Reimagined",
-    category: "SOCIETY / INNOVATION",
     color: "#59A67D",
     content:
       "The industries being built today will define how future generations live, work and move. This is more than technological progress. It is a transformation of society.",
-    quote: "We are not just imagining the future. We are building it.",
     image:
       "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1800&q=85",
   },
@@ -440,18 +428,9 @@ export default function Home() {
 
             {/* ARTICLE HERO */}
             <section className="article-hero">
-              <div className="article-meta reveal">
-                <span>{article.category}</span>
-                <span>ARTICLE / {String(index + 1).padStart(2, "0")}</span>
-              </div>
-
               <h1 className="article-title reveal">
                 {article.title}
               </h1>
-
-              <p className="article-intro reveal">
-                {article.quote}
-              </p>
 
               <figure className="article-image reveal">
                 <img
@@ -459,52 +438,13 @@ export default function Home() {
                   alt={article.title}
                   loading={index === 0 ? "eager" : "lazy"}
                 />
-
-                <figcaption>
-                  <span>FIG {String(index + 1).padStart(2, "0")}</span>
-                  <span>{article.category}</span>
-                </figcaption>
               </figure>
-
-              <div className="article-scroll">
-                <span>SCROLL TO EXPLORE ↓</span>
-              </div>
             </section>
 
             {/* ARTICLE BODY */}
             <section className="article-body">
-              <div className="body-index">
-                <span>{String(index + 1).padStart(2, "0")}</span>
-              </div>
-
               <div className="body-content">
-                <p className="body-lead reveal">
-                  {article.content}
-                </p>
-
-                <blockquote className="article-quote reveal">
-                  “{article.quote}”
-                </blockquote>
-
-                <div className="body-description reveal">
-                  <p>
-                    Every generation inherits a world.
-                    But the next generation has the
-                    opportunity to reshape it.
-                  </p>
-
-                  <p>
-                    New ideas, new technology and a
-                    different approach to innovation
-                    are creating possibilities that
-                    were once considered impossible.
-                  </p>
-                </div>
-              </div>
-
-              <div className="body-side">
-                <span>2026</span>
-                <span>PNN JOURNAL</span>
+                <p className="body-lead reveal">{article.content}</p>
               </div>
             </section>
           </article>

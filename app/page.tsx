@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import EyeballModel from "./components/EyeballModel";
 
 const articles = [
   {
@@ -89,6 +88,7 @@ const clamp = (value: number) =>
 export default function Home() {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const geometryRef = useRef<HTMLDivElement>(null);
+  const sphereRef = useRef<HTMLDivElement>(null);
   const chapterNavigationRef = useRef<HTMLElement>(null);
   const readingTrackRef = useRef<HTMLDivElement>(null);
   const readingProgressRef = useRef<HTMLDivElement>(null);
@@ -103,6 +103,10 @@ export default function Home() {
       const readingPercentage = Math.round(readingProgress * 100);
 
       geometryRef.current?.style.setProperty(
+        "--geometry-scroll",
+        `${(readingProgress - 0.5) * 90}px`
+      );
+      sphereRef.current?.style.setProperty(
         "--geometry-scroll",
         `${(readingProgress - 0.5) * 90}px`
       );
@@ -204,6 +208,7 @@ export default function Home() {
         "--geometry-color",
         interpolated
       );
+      sphereRef.current?.style.setProperty("--geometry-color", interpolated);
       chapterNavigationRef.current?.style.setProperty(
         "--chapter-active-color",
         interpolated
@@ -284,18 +289,22 @@ export default function Home() {
       const horizontal = event.clientX / window.innerWidth - 0.5;
       const vertical = event.clientY / window.innerHeight - 0.5;
 
-      geometryRef.current.style.setProperty(
-        "--geometry-rotate-x",
-        `${vertical * -14}deg`
-      );
-      geometryRef.current.style.setProperty(
-        "--geometry-rotate-y",
-        `${horizontal * 18}deg`
-      );
+      [geometryRef, sphereRef].forEach((stageRef) => {
+        stageRef.current?.style.setProperty(
+          "--geometry-rotate-x",
+          `${vertical * -14}deg`
+        );
+        stageRef.current?.style.setProperty(
+          "--geometry-rotate-y",
+          `${horizontal * 18}deg`
+        );
+      });
     };
     const resetPointer = () => {
-      geometryRef.current?.style.setProperty("--geometry-rotate-x", "0deg");
-      geometryRef.current?.style.setProperty("--geometry-rotate-y", "0deg");
+      [geometryRef, sphereRef].forEach((stageRef) => {
+        stageRef.current?.style.setProperty("--geometry-rotate-x", "0deg");
+        stageRef.current?.style.setProperty("--geometry-rotate-y", "0deg");
+      });
     };
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
@@ -394,7 +403,21 @@ export default function Home() {
         </div>
       </div>
 
-      <EyeballModel />
+      <div
+        className="geometry-stage geometry-sphere-stage"
+        ref={sphereRef}
+        aria-hidden="true"
+      >
+        <div className="geometry-drift">
+          <div className="geometry-cluster">
+            <div className="geometry-orbit geometry-orbit--outer" />
+            <div className="geometry-orbit geometry-orbit--inner" />
+            <div className="geometry-sphere">
+              <span className="geometry-sphere-latitude" />
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* MAIN CONTAINER */}
       <div className="site-container">

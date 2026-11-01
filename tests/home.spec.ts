@@ -31,16 +31,15 @@ test.describe("RSAH Journal home page", () => {
   test("renders all chapters and accessible article headings", async ({ page }) => {
     await page.goto("/");
 
-    await expect(page.locator(".article-section")).toHaveCount(3);
+    await expect(page.locator(".article-section")).toHaveCount(15);
     await expect(page.locator("h1")).toHaveCount(1);
-    await expect(page.locator("h2")).toHaveCount(2);
+    await expect(page.locator("h2")).toHaveCount(14);
     await expect(page.locator("nav[aria-label='Article chapters'] .chapter-link")).toHaveCount(3);
   });
 
   test("opens an individual article page with related stories", async ({ page }) => {
     await page.goto("/");
-    const articleLink = page.locator(".article-read-link").first();
-    await expect(articleLink).toHaveAttribute("href", "/articles/think-for-yourself");
+    await expect(page.locator(".article-section").first()).toContainText("Think for Yourself");
     await page.goto("/articles/think-for-yourself");
 
     await expect(page).toHaveURL(/\/articles\/think-for-yourself$/);
@@ -68,8 +67,8 @@ test.describe("RSAH Journal home page", () => {
     const lastLink = page.locator(".chapter-link").last();
 
     await lastLink.click();
-    await expect(page).toHaveURL(/#article-3$/);
-    await expect(page.locator("#article-3")).toBeInViewport();
+    await expect(page).toHaveURL(/#article-11$/);
+    await expect(page.locator("#article-11")).toBeInViewport();
     await expect(lastLink).toHaveAttribute("aria-current", "location");
   });
 
@@ -87,7 +86,7 @@ test.describe("RSAH Journal home page", () => {
       await image.scrollIntoViewIfNeeded();
     }
 
-    await expect(page.locator(".article-image-fallback")).toHaveCount(2);
+    await expect(page.locator(".article-image-fallback")).toHaveCount(10);
     await expect(page.locator(".article-image-fallback").first()).toContainText("Image unavailable");
   });
 
@@ -132,7 +131,7 @@ test.describe("RSAH Journal home page", () => {
 
     await page.goto("/articles/think-for-yourself");
     await expect(page.locator(".article-share")).toBeVisible();
-    await expect(page.locator(".article-share-actions a")).toHaveCount(3);
+    await expect(page.locator(".article-share-actions a")).toHaveCount(0);
     await expect(page.locator(".article-share-actions")).toContainText("Copy link");
   });
 });

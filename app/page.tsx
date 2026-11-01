@@ -33,6 +33,11 @@ const interpolateColor = (
 const clamp = (value: number) =>
   Math.max(0, Math.min(1, value));
 
+const chapters = ["Thoughts", "Sports", "Vocation Life"] as const;
+const chapterStarts = chapters.map((chapter) =>
+  articles.findIndex((article) => article.chapter === chapter)
+);
+
 export default function Home() {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const geometryRef = useRef<HTMLDivElement>(null);
@@ -258,12 +263,12 @@ export default function Home() {
       document.querySelectorAll<HTMLAnchorElement>(".chapter-link")
     );
 
-    const setCurrentChapter = (index: number) => {
+    const setCurrentChapter = (chapterIndex: number, activeSectionIndex: number) => {
       sections.forEach((section, sectionIndex) => {
-        section.classList.toggle("is-current", sectionIndex === index);
+        section.classList.toggle("is-current", sectionIndex === activeSectionIndex);
       });
       links.forEach((link, linkIndex) => {
-        if (linkIndex === index) {
+        if (linkIndex === chapterIndex) {
           link.classList.add("is-active");
           link.setAttribute("aria-current", "location");
         } else {
@@ -287,14 +292,17 @@ export default function Home() {
         const current = visibleEntries[0];
         if (!current) return;
 
-        const index = sections.indexOf(current.target as HTMLElement);
-        if (index !== -1) setCurrentChapter(index);
+        const articleIndex = sections.indexOf(current.target as HTMLElement);
+        if (articleIndex !== -1) {
+          const chapterIndex = chapters.indexOf(articles[articleIndex].chapter);
+          setCurrentChapter(chapterIndex, articleIndex);
+        }
       },
       { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
     );
 
     sections.forEach((section) => observer.observe(section));
-    setCurrentChapter(0);
+    setCurrentChapter(0, 0);
 
     return () => observer.disconnect();
   }, []);
@@ -346,17 +354,17 @@ export default function Home() {
         ref={chapterNavigationRef}
         aria-label="Article chapters"
       >
-        {articles.map((article, index) => (
+        {chapters.map((chapter, chapterIndex) => (
           <a
             className="chapter-link"
-            href={`#article-${index + 1}`}
-            key={article.chapter}
+            href={"#article-" + (chapterStarts[chapterIndex] + 1)}
+            key={chapter}
           >
             <span className="chapter-number">
-              {String(index + 1).padStart(2, "0")}
+              {String(chapterIndex + 1).padStart(2, "0")}
             </span>
             <span className="chapter-rule" aria-hidden="true" />
-            <span className="chapter-label">{article.chapter}</span>
+            <span className="chapter-label">{chapter}</span>
           </a>
         ))}
       </nav>
@@ -403,12 +411,10 @@ export default function Home() {
       <div className="site-container">
         <header className="topbar">
           <a href="#top" className="logo">RSAH</a>
-          <Link href="/about" className="topbar-about-link">About</Link>
-
-          <a href="#" className="topbar-pill" aria-label="RSAH tagline">
-            #tangguh
-          </a>
-
+          <div className="topbar-actions">
+            <Link href="/about" className="topbar-about-link">About</Link>
+            <a href="#top" className="topbar-pill" aria-label="RSAH tagline">#tangguh</a>
+          </div>
           <span className="year-box">2026</span>
         </header>
 
@@ -424,6 +430,7 @@ export default function Home() {
             key={article.title}
             className="article-section"
             data-index={index}
+            data-chapter={article.chapter}
             id={`article-${index + 1}`}
             aria-labelledby={`article-title-${index + 1}`}
           >
@@ -446,6 +453,8 @@ export default function Home() {
                 </h2>
               )}
 
+              <p className="article-excerpt reveal">{article.excerpt}</p>
+
               <ArticleImage
                 src={article.image}
                 alt={article.imageAlt}
@@ -454,9 +463,6 @@ export default function Home() {
                 className="reveal"
               />
 
-              <Link className="article-read-link" href={`/articles/${article.slug}`}>
-                Read the full story →
-              </Link>
             </section>
 
             {/* ARTICLE BODY */}

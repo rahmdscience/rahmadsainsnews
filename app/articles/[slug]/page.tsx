@@ -154,7 +154,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
           <ArticleGallery items={article.gallery} />
 
-          <ArticleShare title={article.title} />
+          <ArticleShare />
 
           {article.externalLinks.length ? (
             <div className="article-detail-links">

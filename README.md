@@ -1,6 +1,6 @@
 # RSAH
 
-RSAH adalah jurnal satu halaman dengan tagline **#tangguh**. Isinya berangkat dari pemikiran sendiri dan sport, ditulis dengan suara yang santai tetapi menusuk—langsung ke inti untuk pembaca usia 17–24 tahun.
+RSAH adalah jurnal satu halaman dengan tagline **#tangguh**. Isinya berangkat dari Thoughts, Sports, dan Vocation Life, ditulis dengan suara yang santai tetapi menusuk—langsung ke inti untuk pembaca usia 17–24 tahun.
 
 The page uses a scroll-driven presentation: article sections reveal as readers move through the story, while the background color transitions to reflect each chapter. Editorial photography, motion, and a minimal navigation frame the content.
 
@@ -9,7 +9,7 @@ The page uses a scroll-driven presentation: article sections reveal as readers m
 - **Name:** RSAH
 - **Tagline:** #tangguh
 - **Audience:** usia 17–24 tahun
-- **Topics:** pemikiran sendiri dan sport
+- **Topics:** Thoughts, Sports, dan Vocation Life
 - **Voice:** santai, tajam, langsung ke inti
 - **Typography:** editorial serif dan technical mono
 - **Palette:** warm orange, amber, electric blue, deep blue, green, dan black
@@ -59,7 +59,7 @@ do not use an operating-system path such as `C:\Users\...`. For another
 remote provider, add its image CDN hostname to `images.remotePatterns` in
 `next.config.ts`. Use the provider's direct image/CDN URL, not the page URL.
 
-Each article record also includes the editorial fields used by the next phases:
+The homepage currently carries five scrollable placeholder stories in each chapter, for fifteen stories total. Each article record also includes the editorial fields used by the detail page and media system:
 `slug`, `eyebrow`, `excerpt`, `body`, `author`, `publishedAt`, `readingTime`,
 `category`, `video`, `externalLinks`, `pullQuote`, `alignment`, `mediaType`,
 `featured`, `relatedArticles`, `seoTitle`, `seoDescription`, and `socialImage`.

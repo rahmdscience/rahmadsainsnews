@@ -2,62 +2,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
+import { ArticleImage } from "../components/ArticleImage";
+import { articles } from "../content/article-data";
 
-const articles = [
-  {
-    chapter: "INTRODUCTION",
-    title: "The New Industrials",
-    color: "#FF8126",
-    content:
-      "For 50-odd years, American innovation has felt dominated by the creative output of Silicon Valley. But times are changing. A new generation of industrial pioneers is beginning to reshape the physical world.",
-    image: "/images/Rahmad%20Sains_Arc.png",
-  },
-  {
-    chapter: "DESIGN",
-    title: "A Different Kind of Future",
-    color: "#F5A04C",
-    content:
-      "They're not waiting to get established to worry about Design. They are using Design to help them get established. A new way of thinking is changing how industries are built.",
-    image:
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1800&q=85",
-  },
-  {
-    chapter: "TECHNOLOGY",
-    title: "Beyond the Digital World",
-    color: "#48B8F5",
-    content:
-      "The next industrial revolution is not confined to computer screens. It is happening in laboratories, power plants, factories and infrastructure across the world.",
-    image:
-      "https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?w=1800&q=85",
-  },
-  {
-    chapter: "ENGINEERING",
-    title: "Rebuilding Everything",
-    color: "#4588D2",
-    content:
-      "Manufacturing, infrastructure and logistics are entering a new era. Engineering is becoming the foundation of a different kind of progress.",
-    image:
-      "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?w=1800&q=85",
-  },
-  {
-    chapter: "ENERGY",
-    title: "The Energy Transition",
-    color: "#39C879",
-    content:
-      "Energy is at the heart of every modern society. From renewable resources to advanced nuclear technology, the way we produce and distribute energy is changing.",
-    image:
-      "https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=1800&q=85",
-  },
-  {
-    chapter: "FUTURE",
-    title: "A World Reimagined",
-    color: "#59A67D",
-    content:
-      "The industries being built today will define how future generations live, work and move. This is more than technological progress. It is a transformation of society.",
-    image:
-      "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1800&q=85",
-  },
-];
 
 const hexToRgb = (hex: string) => {
   const value = hex.replace("#", "");
@@ -95,6 +43,16 @@ export default function Home() {
   const readingPercentageRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>(".article-section")
+    );
+    const titles = sections.map((section) =>
+      section.querySelector<HTMLElement>(".article-title")
+    );
+    const reducedMotionQuery = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    );
+
     const updateBackground = () => {
       const maxScroll =
         document.documentElement.scrollHeight - window.innerHeight;
@@ -102,14 +60,11 @@ export default function Home() {
         maxScroll > 0 ? clamp(window.scrollY / maxScroll) : 0;
       const readingPercentage = Math.round(readingProgress * 100);
 
-      geometryRef.current?.style.setProperty(
-        "--geometry-scroll",
-        `${(readingProgress - 0.5) * 90}px`
-      );
-      sphereRef.current?.style.setProperty(
-        "--geometry-scroll",
-        `${(readingProgress - 0.5) * 90}px`
-      );
+      if (!reducedMotionQuery.matches) {
+        const geometryScroll = `${(readingProgress - 0.5) * 90}px`;
+        geometryRef.current?.style.setProperty("--geometry-scroll", geometryScroll);
+        sphereRef.current?.style.setProperty("--geometry-scroll", geometryScroll);
+      }
 
       readingProgressRef.current?.style.setProperty(
         "width",
@@ -123,23 +78,13 @@ export default function Home() {
         `${readingPercentage}%`
       );
 
-      const sections = Array.from(
-        document.querySelectorAll<HTMLElement>(".article-section")
-      );
-
       if (!sections.length) return;
 
       const viewportCenterY = window.innerHeight * 0.5;
-      const chapterThreshold = window.innerHeight * 0.8;
-      const nextChapterIndex = sections.findIndex(
-        (section) => section.getBoundingClientRect().top > chapterThreshold
+      const sectionBounds = sections.map((section) =>
+        section.getBoundingClientRect()
       );
-      const chapterIndex =
-        nextChapterIndex === -1
-          ? sections.length - 1
-          : Math.max(0, nextChapterIndex - 1);
-      const colorSectionIndex = sections.findIndex((section) => {
-        const bounds = section.getBoundingClientRect();
+      const colorSectionIndex = sectionBounds.findIndex((bounds) => {
         return viewportCenterY >= bounds.top && viewportCenterY < bounds.bottom;
       });
 
@@ -151,7 +96,7 @@ export default function Home() {
       const transitionDistance = window.innerHeight * 0.2;
 
       for (let index = 0; index < sections.length - 1; index += 1) {
-        const boundary = sections[index + 1].getBoundingClientRect().top;
+        const boundary = sectionBounds[index + 1].top;
         const transitionStart = boundary - transitionDistance;
         const transitionEnd = boundary + transitionDistance;
 
@@ -173,7 +118,7 @@ export default function Home() {
       if (!transitioning) {
         const settledIndex =
           colorSectionIndex === -1
-            ? viewportCenterY < sections[0].getBoundingClientRect().top
+            ? viewportCenterY < sectionBounds[0].top
               ? 0
               : sections.length - 1
             : colorSectionIndex;
@@ -181,10 +126,7 @@ export default function Home() {
         nextColor = activeColor;
       }
 
-      sections.forEach((section, index) => {
-        section.classList.toggle("is-current", index === chapterIndex);
-
-        const title = section.querySelector<HTMLElement>(".article-title");
+      titles.forEach((title) => {
         if (!title?.classList.contains("visible")) return;
 
         const titleTop = title.getBoundingClientRect().top;
@@ -213,18 +155,6 @@ export default function Home() {
         "--chapter-active-color",
         interpolated
       );
-      chapterNavigationRef.current
-        ?.querySelectorAll<HTMLAnchorElement>(".chapter-link")
-        .forEach((link, index) => {
-          if (index === chapterIndex) {
-            link.classList.add("is-active");
-            link.setAttribute("aria-current", "location");
-          } else {
-            link.classList.remove("is-active");
-            link.removeAttribute("aria-current");
-          }
-        });
-
       const gradientOpacity = transitioning
         ? Math.sin(progress * Math.PI) * 0.55
         : 0;
@@ -253,8 +183,7 @@ export default function Home() {
     };
 
     let frame = 0;
-
-    const onScroll = () => {
+    const scheduleUpdate = () => {
       if (frame) return;
 
       frame = requestAnimationFrame(() => {
@@ -263,19 +192,20 @@ export default function Home() {
       });
     };
 
+    const onScroll = () => {
+      scheduleUpdate();
+    };
+
     updateBackground();
 
     window.addEventListener("scroll", onScroll, {
       passive: true,
     });
 
-    window.addEventListener("resize", updateBackground);
+    window.addEventListener("resize", scheduleUpdate);
 
     const pointerQuery = window.matchMedia(
       "(hover: hover) and (pointer: fine)"
-    );
-    const reducedMotionQuery = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
     );
     const onPointerMove = (event: PointerEvent) => {
       if (
@@ -312,12 +242,61 @@ export default function Home() {
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", updateBackground);
+      window.removeEventListener("resize", scheduleUpdate);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerleave", resetPointer);
 
       if (frame) cancelAnimationFrame(frame);
     };
+  }, []);
+
+  useEffect(() => {
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>(".article-section")
+    );
+    const links = Array.from(
+      document.querySelectorAll<HTMLAnchorElement>(".chapter-link")
+    );
+
+    const setCurrentChapter = (index: number) => {
+      sections.forEach((section, sectionIndex) => {
+        section.classList.toggle("is-current", sectionIndex === index);
+      });
+      links.forEach((link, linkIndex) => {
+        if (linkIndex === index) {
+          link.classList.add("is-active");
+          link.setAttribute("aria-current", "location");
+        } else {
+          link.classList.remove("is-active");
+          link.removeAttribute("aria-current");
+        }
+      });
+    };
+
+    if (!sections.length || !("IntersectionObserver" in window)) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort(
+            (a, b) =>
+              Math.abs(a.boundingClientRect.top - window.innerHeight * 0.5) -
+              Math.abs(b.boundingClientRect.top - window.innerHeight * 0.5)
+          );
+        const current = visibleEntries[0];
+        if (!current) return;
+
+        const index = sections.indexOf(current.target as HTMLElement);
+        if (index !== -1) setCurrentChapter(index);
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    setCurrentChapter(0);
+
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -341,7 +320,8 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="editorial-page">
+    <main className="editorial-page" id="top">
+      <a className="skip-link" href="#article-1">Skip to stories</a>
       <div
         className="reading-progress-track"
         ref={readingTrackRef}
@@ -422,10 +402,11 @@ export default function Home() {
       {/* MAIN CONTAINER */}
       <div className="site-container">
         <header className="topbar">
-          <a href="#" className="logo">RSAH</a>
+          <a href="#top" className="logo">RSAH</a>
+          <Link href="/about" className="topbar-about-link">About</Link>
 
-          <a href="#" className="topbar-pill">
-            EVERYTHINGRSAH
+          <a href="#" className="topbar-pill" aria-label="RSAH tagline">
+            #tangguh
           </a>
 
           <span className="year-box">2026</span>
@@ -444,6 +425,7 @@ export default function Home() {
             className="article-section"
             data-index={index}
             id={`article-${index + 1}`}
+            aria-labelledby={`article-title-${index + 1}`}
           >
             <div className="article-index">
               <span>
@@ -453,25 +435,34 @@ export default function Home() {
 
             {/* ARTICLE HERO */}
             <section className="article-hero">
-              <h1 className="article-title reveal">
-                {article.title}
-              </h1>
+              <p className="article-eyebrow reveal">{article.eyebrow}</p>
+              {index === 0 ? (
+                <h1 id={`article-title-${index + 1}`} className="article-title reveal">
+                  {article.title}
+                </h1>
+              ) : (
+                <h2 id={`article-title-${index + 1}`} className="article-title reveal">
+                  {article.title}
+                </h2>
+              )}
 
-              <figure
-                className={`article-image${index === 0 ? " article-image--introduction" : ""} reveal`}
-              >
-                <img
-                  src={article.image}
-                  alt={article.title}
-                  loading={index === 0 ? "eager" : "lazy"}
-                />
-              </figure>
+              <ArticleImage
+                src={article.image}
+                alt={article.imageAlt}
+                priority={index === 0}
+                introduction={index === 0}
+                className="reveal"
+              />
+
+              <Link className="article-read-link" href={`/articles/${article.slug}`}>
+                Read the full story →
+              </Link>
             </section>
 
             {/* ARTICLE BODY */}
             <section className="article-body">
               <div className="body-content">
-                <p className="body-lead reveal">{article.content}</p>
+                <p className="body-lead reveal">{article.body}</p>
               </div>
             </section>
           </article>
@@ -479,12 +470,12 @@ export default function Home() {
 
         {/* FOOTER */}
         <footer className="footer">
-          <div className="footer-logo">PNN</div>
+          <div className="footer-logo">RSAH</div>
 
           <div className="footer-details">
-            <span>INDEPENDENT EDITORIAL JOURNAL</span>
+            <span>PEMIKIRAN SENDIRI · SPORT · #tangguh</span>
             <span>© 2026 ALL RIGHTS RESERVED</span>
-            <a href="#">BACK TO TOP ↑</a>
+            <a href="#top">BACK TO TOP ↑</a>
           </div>
         </footer>
       </div>
